@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluador de Impacto - Prueba Técnica</title>
+    <style>
+        
+        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f9; }
+        .container { max-width: 700px; margin: 0 auto; background-color: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #333; margin-bottom: 30px; }
+        input[type="text"], input[type="date"], button { 
+            display: block; 
+            width: 100%; 
+            margin-bottom: 15px; 
+            padding: 12px; 
+            border: 1px solid #ccc; 
+            border-radius: 6px; 
+            box-sizing: border-box;
+        }
+        button { 
+            background-color: #007bff; 
+            color: white; 
+            border: none; 
+            cursor: pointer; 
+            font-size: 1.1em;
+            transition: background-color 0.3s;
+        }
+        button:hover { background-color: #0056b3; }
+
+        
+        #results { margin-top: 40px; padding: 25px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9; }
+        #loading { text-align: center; color: #007bff; font-size: 1.2em; font-weight: bold; }
+        
+        .metric-box { 
+            margin: 10px 0; 
+            padding: 15px; 
+            border-radius: 8px; 
+            color: white; 
+            font-size: 1em;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .verde { background-color: #4CAF50; }
+        .amarillo { background-color: #FFC107; color: black; }
+        .rojo { background-color: #F44336; }
+        
+        .global-result { 
+            font-size: 1.8em; 
+            font-weight: bold; 
+            margin-top: 25px; 
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Evaluador de Impacto de Notas de Prensa</h1>
+
+        <form id="impact-form">
+            <input type="text" id="organizacion" placeholder="Organización (Ej: TechCorp)" required>
+            <input type="text" id="tema" placeholder="Tema (Ej: Lanzamiento Producto)" required>
+            <input type="date" id="fecha" required>
+            <button type="submit">Evaluar Impacto</button>
+        </form>
+
+        <div id="loading" style="display:none;">Cargando análisis... Esto puede tomar unos segundos.</div>
+        
+        <div id="results" style="display:none;">
+            <h2>Resultados del Análisis</h2>
+            <p><strong>Organización:</strong> <span id="res-organizacion"></span></p>
+            <p><strong>Tema:</strong> <span id="res-tema"></span></p>
+
+            <h3>Métricas Detalladas</h3>
+            <div id="metrics-output">
+                </div>
+
+            <div id="global-result" class="global-result"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
