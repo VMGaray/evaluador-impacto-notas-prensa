@@ -34,8 +34,8 @@ document.getElementById('impact-form').addEventListener('submit', function(e) {
     .then(analysisResult => {
         document.getElementById('loading').style.display = 'none';
         document.getElementById('results').style.display = 'block';
-        document.getElementById('res-organizacion').textContent = analysisResult.organizacion || "No Proporcionado";
-        document.getElementById('res-tema').textContent = analysisResult.tema || "No Proporcionado";
+        document.getElementById('res-organizacion').textContent = organizacion;
+        document.getElementById('res-tema').textContent = tema;
        
         const globalResultDiv = document.getElementById('global-result');
         globalResultDiv.textContent = `Resultado Global: ${analysisResult.resultado_global}`;

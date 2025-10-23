@@ -56,13 +56,16 @@
 </head>
 <body>
     <div class="container">
-        <h1>Evaluador de Impacto de Notas de Prensa</h1>
+        <h1>Analice la Repercusión de su Nota </h1>
+        <p style="text-align: center; margin-bottom: 25px; color: #555;">
+            Descubra el impacto real de su mensaje en los medios. Introduzca la información para iniciar la evaluación.
+        </p>
 
         <form id="impact-form">
             <input type="text" id="organizacion" placeholder="Organización (Ej: TechCorp)" required>
             <input type="text" id="tema" placeholder="Tema (Ej: Lanzamiento Producto)" required>
             <input type="date" id="fecha" required>
-            <button type="submit">Evaluar Impacto</button>
+            <button type="submit">Evaluar Repercusión</button>
         </form>
 
         <div id="loading" style="display:none;">Cargando análisis... Esto puede tomar unos segundos.</div>
@@ -77,6 +80,7 @@
                 </div>
 
             <div id="global-result" class="global-result"></div>
+            
         </div>
     </div>
 
