@@ -1,237 +1,334 @@
-# 🤖 Proyecto: Evaluador de Impacto de Notas de Prensa
+# 📊 Evaluador de Impacto de Notas de Prensa
 
-Este repositorio contiene el código fuente para la Prueba Técnica "Evaluador de Impacto de Notas de Prensa". El proyecto está compuesto por un **backend basado en N8N** (workflow de automatización) y un **frontend web** (HTML/CSS/JavaScript) que permite evaluar el impacto de notas de prensa mediante métricas calculadas automáticamente.
+> Aplicación web para analizar y evaluar el impacto mediático de notas de prensa en medios de comunicación locales y regionales.
 
----
-
-## 🚀 Descripción General
-
-El sistema evalúa el impacto de notas de prensa mediante:
-- **Cobertura de Medios**: Número de registros consultados desde Google Sheets
-- **Alcance Estimado**: Cálculo basado en datos del ID de consulta
-- **Duración en Días**: Simulación de permanencia en agenda (2-7 días)
-- **Engagement Total**: Suma de interacciones simuladas
-
-El análisis determina un **resultado global** (`FUNCIONÓ` / `NO FUNCIONÓ`) basado en umbrales predefinidos para cada métrica.
+![Estado](https://img.shields.io/badge/estado-funcional-brightgreen)
+![Tecnología](https://img.shields.io/badge/tech-HTML%20%7C%20CSS%20%7C%20JavaScript-blue)
+![N8N](https://img.shields.io/badge/backend-N8N%20Workflow-orange)
 
 ---
 
-## 📂 Estructura del Proyecto
+## 📋 Tabla de Contenidos
 
-```
-evaluador-impacto-notas-prensa/
-├── index.html              # Interfaz de usuario del evaluador
-├── script.js               # Lógica del frontend y llamada a la API
-├── n8n-workflow/
-│   └── My workflow.json    # Workflow de N8N (backend)
-└── README.md               # Documentación del proyecto
-```
-
----
-
-## 📅 DÍA 1: Workflow de Análisis (N8N Backend)
-
-Esta sección documenta el endpoint de la API creado en N8N para realizar el análisis de impacto. El flujo se encarga de recibir los datos del formulario, consultar el endpoint base de Google Sheets y aplicar una lógica de simulación para calcular las métricas.
-
-### 1. Endpoint de Análisis (Webhook)
-
-El Frontend hace una solicitud POST a la siguiente URL para iniciar el análisis.
-
-| Descripción | Valor |
-| :--- | :--- |
-| **URL de Producción** | `https://victoriagaray.app.n8n.cloud/webhook/evaluador-impacto` |
-| **Método** | `POST` |
-| **Content-Type** | `application/json` |
+- [Descripción](#descripción)
+- [Características](#características)
+- [Requisitos Previos](#requisitos-previos)
+- [Instalación](#instalación)
+- [Configuración del Workflow N8N](#configuración-del-workflow-n8n)
+- [Uso de la Aplicación](#uso-de-la-aplicación)
+- [Estructura del Proyecto](#estructura-del-proyecto)
+- [Tecnologías Utilizadas](#tecnologías-utilizadas)
+- [Casos de Prueba](#casos-de-prueba)
+- [Documentación Técnica](#documentación-técnica)
 
 ---
 
-### 2. Estructura de la Petición (Input)
+## 🎯 Descripción
 
-El Webhook espera recibir los siguientes datos del formulario en el **cuerpo (Body)** de la solicitud JSON:
+Esta aplicación permite a organizaciones, empresas y entidades gubernamentales **evaluar el impacto real** de sus comunicados de prensa en los medios de comunicación. A través de un workflow automatizado en N8N que consulta datos de un endpoint externo, el sistema analiza métricas clave y proporciona insights accionables.
 
-```json
-{
-  "organizacion": "Nombre de la organización (ej: EmpresaX)",
-  "tema": "Título de la nota de prensa (ej: Lanzamiento Nuevo Producto)",
-  "fecha": "Fecha de publicación (ej: 2025-10-22)"
-}
-```
+### ¿Qué problema resuelve?
 
-### 3. Flujo del Workflow N8N
-
-El workflow implementado consta de los siguientes nodos:
-
-1. **Webhook (Trigger)**: Recibe la solicitud POST del frontend
-2. **HTTP Request**: Consulta el endpoint de Google Sheets (`action=getData&limit=50`)
-3. **Code (JavaScript)**:
-   - Procesa los 50 registros obtenidos
-   - Calcula las métricas de impacto
-   - Aplica umbrales para determinar estados (Excelente/Bien/Malo)
-   - Genera el resultado global
-4. **Respond to Webhook**: Devuelve el JSON con los resultados al frontend
-
-### 4. Estructura de la Respuesta (Output)
-
-El backend devuelve un JSON con el siguiente formato:
-
-```json
-{
-  "organizacion": "EmpresaX",
-  "tema": "Lanzamiento Nuevo Producto",
-  "cobertura_medios": 50,
-  "alcance_estimado": 425000,
-  "duracion_dias": 5,
-  "engagement_total": 1250,
-  "analisis": {
-    "cobertura": {
-      "estado": "Excelente",
-      "color": "verde"
-    },
-    "alcance": {
-      "estado": "Excelente",
-      "color": "verde"
-    },
-    "duracion": {
-      "estado": "Excelente",
-      "color": "verde"
-    }
-  },
-  "resultado_global": "FUNCIONÓ"
-}
-```
-
-### 5. Lógica de Umbrales
-
-| Métrica | Excelente (Verde) | Bien (Amarillo) | Malo (Rojo) |
-|---------|-------------------|-----------------|-------------|
-| **Cobertura de Medios** | ≥ 40 | 20 - 39 | < 20 |
-| **Alcance Estimado** | ≥ 400,000 | 150,000 - 399,999 | < 150,000 |
-| **Duración en Días** | ≥ 5 | 3 - 4 | < 3 |
-
-**Resultado Global**: Se considera `FUNCIONÓ` cuando al menos 2 de las 3 métricas principales NO están en estado "Malo".
+- ❌ **Antes:** No había forma de medir objetivamente si una nota de prensa tuvo impacto
+- ✅ **Ahora:** Métricas cuantificables, análisis automático y recomendaciones personalizadas
 
 ---
 
-## 📅 DÍA 2: Frontend Web (HTML/CSS/JavaScript)
+## ✨ Características
 
-### 1. Características del Frontend
+### Funcionalidades Core
 
-- ✅ **Formulario interactivo**: Captura Organización, Tema y Fecha
-- ✅ **Validación de campos**: Todos los campos son obligatorios
-- ✅ **Indicador de carga**: Muestra mensaje mientras se procesa la solicitud
-- ✅ **Visualización de resultados**:
-  - Métricas con código de colores (verde/amarillo/rojo)
-  - Resultado global destacado
-  - Formateo de números con separadores de miles
-- ✅ **Manejo de errores**: Muestra mensajes descriptivos si falla la conexión
+✅ **Formulario Intuitivo**
+- Ingreso de organización, tema y fecha de publicación
+- Validación de campos requeridos
+- Diseño moderno y responsive
 
-### 2. Componentes del Frontend
+✅ **Análisis Automático**
+- Integración con workflow N8N
+- Consulta a endpoint externo con 50 registros
+- Procesamiento de datos en tiempo real
 
-#### `index.html`
-Interfaz de usuario con diseño responsivo que incluye:
-- Formulario de entrada de datos
-- Área de resultados con métricas codificadas por colores
-- Estilos CSS integrados para una presentación profesional
+✅ **Métricas de Impacto**
+- 📰 **Cobertura mediática:** Cantidad de medios que publicaron
+- 👥 **Alcance estimado:** Número de personas impactadas
+- ⏱️ **Duración:** Días en agenda mediática
+- 💬 **Engagement:** Interacciones en redes sociales
 
-#### `script.js`
-Lógica del frontend que implementa:
-- Captura del evento submit del formulario
-- Llamada `fetch` al endpoint de N8N
-- Procesamiento y visualización de resultados
-- Manejo de errores con mensajes al usuario
+✅ **Indicadores Visuales**
+- Código de colores: 🟢 Verde / 🟡 Amarillo / 🔴 Rojo
+- Estados por métrica: Excelente / Bien / Malo
+- Resultado global: **FUNCIONÓ** / **NO FUNCIONÓ**
 
-### 3. Flujo de Interacción
+### Funcionalidades Adicionales
 
-1. Usuario completa el formulario con los datos de la nota de prensa
-2. Al hacer clic en "Evaluar Impacto", se muestra el indicador de carga
-3. Se envía la solicitud POST al webhook de N8N
-4. Se recibe la respuesta con las métricas calculadas
-5. Se renderizan los resultados con colores según el estado de cada métrica
-6. Se muestra el resultado global (FUNCIONÓ/NO FUNCIONÓ)
+📊 **Ver Detalles Ampliados**
+- Modal con información completa de cada métrica
+- Descripciones detalladas
+- Recomendaciones personalizadas basadas en el desempeño
+
+📈 **Comparar con Otras Notas**
+- Guardar múltiples análisis en localStorage
+- Tabla comparativa con todas las métricas
+- Visualización histórica de rendimiento
+
+📄 **Solicitar Análisis Completo**
+- Descarga de reporte en formato .txt
+- Incluye todas las métricas y recomendaciones
+- Listo para compartir con equipos
 
 ---
 
-## 🛠️ Instalación y Uso
+## 📦 Requisitos Previos
 
-### Prerrequisitos
-- Navegador web moderno (Chrome, Firefox, Edge, Safari)
-- Conexión a Internet (para acceder al endpoint de N8N)
+Antes de comenzar, asegúrate de tener:
 
-### Ejecución Local
+- ✅ Navegador web moderno (Chrome, Firefox, Edge, Safari)
+- ✅ Cuenta en [N8N Cloud](https://n8n.io/) o instalación local de N8N
+- ✅ Acceso al endpoint de datos (proporcionado en el workflow)
 
-1. Clonar el repositorio:
+---
+
+## 🚀 Instalación
+
+### Opción 1: Uso Directo (Recomendado)
+
+1. **Clona o descarga este repositorio:**
+
 ```bash
-git clone <url-del-repositorio>
+git clone https://github.com/VMGaray/evaluador-impacto-notas-prensa
 cd evaluador-impacto-notas-prensa
 ```
 
-2. Abrir `index.html` en el navegador:
-   - Doble clic en el archivo, o
-   - Usar un servidor local (ej: Live Server en VS Code)
+2. **Abre el archivo `index.html` en tu navegador:**
 
-3. Completar el formulario y hacer clic en "Evaluar Impacto"
+```bash
+# En Windows
+start index.html
 
-### Configuración del Workflow N8N
+# En macOS
+open index.html
 
-1. Importar el archivo `n8n-workflow/My workflow.json` en tu instancia de N8N
-2. **ACTIVAR** el workflow para que el webhook esté disponible
-3. Verificar que la URL del webhook coincida con la configurada en `script.js:8`
+# En Linux
+xdg-open index.html
+```
+
+¡Listo! La aplicación se ejecutará directamente en tu navegador.
+
+### Opción 2: Servidor Local
+
+Si prefieres usar un servidor local:
+
+```bash
+# Con Python 3
+python -m http.server 8000
+
+# Con Node.js (si tienes http-server instalado)
+npx http-server
+```
+
+Luego abre `http://localhost:8000` en tu navegador.
 
 ---
 
-## 🧪 Ejemplo de Uso
+## ⚙️ Configuración del Workflow N8N
 
-**Entrada:**
-- Organización: `TechCorp`
-- Tema: `Lanzamiento de IA Generativa`
-- Fecha: `2025-10-23`
+### Paso 1: Importar el Workflow
 
-**Salida esperada:**
-- Cobertura de Medios: 50 (Excelente - Verde)
-- Alcance Estimado: ~420,000 (Excelente - Verde)
-- Duración en Días: 5 (Excelente - Verde)
-- Engagement Total: ~1,200
-- **Resultado Global: FUNCIONÓ**
+1. Accede a tu instancia de N8N
+2. Ve a **Workflows** → **Import from File**
+3. Selecciona el archivo `workflow-evaluador-impacto.json` incluido en este repositorio
+4. Haz clic en **Import**
+
+### Paso 2: Configurar el Webhook
+
+1. Abre el nodo **Webhook** en el workflow
+2. Copia la URL del webhook generada
+3. Abre el archivo `script.js` en tu editor
+4. Verifica que la línea 8 tenga tu URL del webhook:
+
+```javascript
+const WEBHOOK_URL = "https://victoriagaray.app.n8n.cloud/webhook/evaluador-impacto";
+```
+
+**Nota:** Si importas el workflow en tu propia instancia de N8N, la URL será diferente. En ese caso, reemplázala con tu URL.
+
+### Paso 3: Verificar Configuración
+
+El workflow tiene la siguiente estructura:
+
+```
+Webhook → Set → HTTP Request → Code (JavaScript) → Respond to Webhook
+```
+
+- **Webhook:** Recibe datos del frontend (organizacion, tema, fecha)
+- **Set:** Prepara los datos para procesamiento
+- **HTTP Request:** Consulta el endpoint externo (50 registros)
+- **Code:** Calcula métricas y determina estados
+- **Respond to Webhook:** Devuelve resultados al frontend
+
+### Paso 4: Activar el Workflow
+
+1. Haz clic en el botón **"Active"** en la esquina superior derecha
+2. El workflow debe mostrar un ícono verde ✅
+3. ¡Listo para recibir solicitudes!
 
 ---
 
-## 📋 Tecnologías Utilizadas
+## 💻 Uso de la Aplicación
 
-- **Backend**: N8N (Workflow Automation)
-  - Webhook Node
-  - HTTP Request Node
-  - Code Node (JavaScript)
-- **Frontend**:
-  - HTML5
-  - CSS3 (diseño responsivo y moderno)
-  - JavaScript (Vanilla JS con Fetch API)
-- **Fuente de Datos**: Google Apps Script / Google Sheets
+### 1. Completar el Formulario
+
+- **Organización:** Nombre de tu empresa/entidad (Ej: TechCorp)
+- **Tema:** Título o tema de la nota de prensa (Ej: Lanzamiento Producto)
+- **Fecha de Publicación:** Selecciona la fecha usando el calendario
+
+### 2. Evaluar Repercusión
+
+Haz clic en el botón **"Evaluar Repercusión"**. El sistema:
+- Envía los datos al workflow N8N
+- Consulta el endpoint externo
+- Calcula las métricas automáticamente
+- Muestra los resultados en 2-5 segundos
+
+### 3. Interpretar Resultados
+
+#### Códigos de Color:
+- 🟢 **Verde (Excelente):** Métrica supera expectativas
+- 🟡 **Amarillo (Bien):** Métrica en rango aceptable
+- 🔴 **Rojo (Malo):** Métrica necesita mejorar
+
+#### Resultado Global:
+- ✅ **FUNCIONÓ:** 3 o más métricas en verde/amarillo
+- ❌ **NO FUNCIONÓ:** Más de 1 métrica en rojo
+
+### 4. Acciones Adicionales
+
+#### 📊 Ver Detalles Ampliados
+- Información completa de cada métrica
+- Recomendaciones personalizadas
+- Explicación de qué significa cada indicador
+
+#### 📈 Comparar con Otras Notas
+- Guarda el análisis actual
+- Realiza más análisis
+- Compara rendimiento en tabla
+
+#### 📄 Solicitar Análisis Completo
+- Descarga reporte en .txt
+- Incluye todas las métricas
+- Listo para compartir
+
+---
+
+## 📁 Estructura del Proyecto
+
+```
+evaluador-impacto-notas-prensa/
+│
+├── index.html                         # Página principal
+├── script.js                          # Lógica de la aplicación
+├── workflow-evaluador-impacto.json    # Workflow N8N exportado
+├── README.md                          # Documentación completa del proyecto
+├── CASOS_DE_PRUEBA.md                 # 5 casos de prueba documentados
+├── DOCUMENTACION_TECNICA.md           # Arquitectura y detalles técnicos
+│
+└── docs/                              # Recursos adicionales
+    └── video-demo.mp4                 # Video explicativo 60-90s
+```
+
+---
+
+## 🛠️ Tecnologías Utilizadas
+
+### Frontend
+- **HTML5:** Estructura semántica
+- **CSS3:** Estilos modernos con gradientes y animaciones
+- **JavaScript (Vanilla):** Lógica sin dependencias externas
+
+### Backend
+- **N8N:** Orquestación de workflow
+- **JavaScript (Node.js):** Procesamiento en nodo Code
+- **HTTP Request:** Consulta a endpoint externo
+
+### Características Técnicas
+- ✅ Diseño responsive (mobile-first)
+- ✅ LocalStorage para persistencia de datos
+- ✅ Fetch API para comunicación asíncrona
+- ✅ Manejo de errores robusto
+- ✅ Animaciones CSS3 (keyframes)
+
+---
+
+## 🧪 Casos de Prueba
+
+Se han documentado **5 casos de prueba exitosos** que validan todas las funcionalidades:
+
+1. ✅ **Campaña Tecnológica Exitosa** - Todas las métricas en verde
+2. ✅ **Evento Cultural Regional** - Métricas en amarillo, resultado positivo
+3. ✅ **Iniciativa Ambiental Local** - Mix de colores, funcionó
+4. ❌ **Comunicado Empresarial Bajo Impacto** - Todas las métricas en rojo
+5. ✅ **Anuncio Gubernamental Alto Impacto** - Excelente desempeño
+
+**Ver detalles completos:** [CASOS_DE_PRUEBA.md](CASOS_DE_PRUEBA.md)
+
+---
+
+## 📚 Documentación Técnica
+
+Para información detallada sobre la arquitectura, flujo de datos, y decisiones técnicas:
+
+📖 **Ver:** [DOCUMENTACION_TECNICA.md](DOCUMENTACION_TECNICA.md)
+
+### Temas Cubiertos:
+- Arquitectura del sistema
+- Flujo de datos completo
+- Cálculo de métricas y umbrales
+- Decisiones de diseño
+- Seguridad y mejores prácticas
+
+---
+
+
+## ⚡ Inicio Rápido (TL;DR)
+
+```bash
+# 1. Clona el repo
+git clone https://github.com/tu-usuario/evaluador-impacto-notas-prensa.git
+
+# 2. Configura N8N
+# - Importa workflow-evaluador-impacto.json
+# - Copia URL del webhook
+# - Pega en script.js línea 8
+
+# 3. Abre index.html en tu navegador
+start index.html
+
+# 4. ¡Evalúa tu primera nota de prensa!
+```
 
 ---
 
 ## 🔗 Enlaces Relevantes
 
 - **Endpoint de Análisis**: `https://victoriagaray.app.n8n.cloud/webhook/evaluador-impacto`
-- **Google Sheets API**: `https://script.google.com/macros/s/AKfycbyPP_fxSfu6vajpZG_0VNVggSA0eIoW38kSCG1a2zA5UlB9dsNoQn8gGf1UZ9l8oMIQJg/exec?action=getData&limit=50`
+- **Google Sheets API**: Endpoint externo utilizado para los datos
 
 ---
 
 ## 📝 Notas Técnicas
 
-- El sistema utiliza **datos simulados** para el cálculo de métricas basándose en los IDs de consulta de Google Sheets
-- La duración en días es aleatoria (2-7 días) en cada análisis
-- El engagement es calculado mediante valores aleatorios sumados
-- **IMPORTANTE**: El workflow de N8N debe estar **ACTIVO** para que funcione el sistema
+- El sistema utiliza datos reales del endpoint externo de Google Sheets
+- El cálculo de métricas se basa en los 50 registros obtenidos
+- La duración en días es simulada (2-7 días aleatorios)
+- El engagement se calcula mediante simulación basada en datos
+- **IMPORTANTE**: El workflow de N8N debe estar **ACTIVO** para que funcione
 
 ---
 
-## 👩‍💻 Desarrollo
+## 👤 Autor
 
-**Día 1**: Diseño e implementación del workflow N8N + estructura de la API
-**Día 2**: Desarrollo del frontend web con interfaz de usuario interactiva
+**Victoria Garay**
+
+Proyecto desarrollado como prueba técnica.
 
 ---
-
-## 📧 Contacto
-
-Proyecto desarrollado como prueba técnica por **Victoria Garay**

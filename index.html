@@ -240,6 +240,214 @@
             }
         }
 
+        /* Action Buttons */
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .action-btn {
+            padding: 14px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-icon {
+            font-size: 1.2em;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3d944c 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(61, 148, 76, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(61, 148, 76, 0.6);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #3d944c 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(61, 148, 76, 0.4);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(61, 148, 76, 0.6);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #3d944c 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(61, 148, 76, 0.4);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(61, 148, 76, 0.6);
+        }
+
+        .btn-small {
+            padding: 10px 16px;
+            font-size: 0.9em;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 800px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideDown 0.4s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 32px;
+            font-weight: bold;
+            line-height: 20px;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #000;
+        }
+
+        .modal-content h2 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #3d944c;
+            padding-bottom: 10px;
+        }
+
+        .detail-item {
+            background-color: #f7fafc;
+            padding: 15px;
+            margin: 12px 0;
+            border-radius: 10px;
+            border-left: 4px solid #3d944c;
+        }
+
+        .detail-item h4 {
+            color: #4a5568;
+            margin-bottom: 8px;
+        }
+
+        .detail-item p {
+            color: #2d3748;
+            line-height: 1.6;
+        }
+
+        .comparison-actions {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .info-message {
+            color: #718096;
+            text-align: center;
+            padding: 20px;
+            background-color: #f7fafc;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .comparison-item {
+            background: linear-gradient(to right, #f7fafc, #fff);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .comparison-item h4 {
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .comparison-item p {
+            color: #718096;
+            font-size: 0.9em;
+        }
+
+        .comparison-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .comparison-metric {
+            text-align: center;
+            padding: 10px;
+            background-color: #f7fafc;
+            border-radius: 8px;
+        }
+
+        .comparison-metric strong {
+            display: block;
+            color: #4a5568;
+            font-size: 0.85em;
+            margin-bottom: 5px;
+        }
+
+        .comparison-metric span {
+            color: #2d3748;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 25px;
@@ -250,6 +458,14 @@
             }
             .global-result {
                 font-size: 1.5em;
+            }
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+                padding: 20px;
             }
         }
     </style>
@@ -299,6 +515,43 @@
             <div id="metrics-output"></div>
 
             <div id="global-result" class="global-result"></div>
+
+            <div class="action-buttons">
+                <button type="button" id="btn-detalles" class="action-btn btn-primary">
+                    <span class="btn-icon">📊</span> Ver Detalles Ampliados
+                </button>
+                <button type="button" id="btn-comparar" class="action-btn btn-secondary">
+                    <span class="btn-icon">📈</span> Comparar con Otras Notas
+                </button>
+                <button type="button" id="btn-analisis-completo" class="action-btn btn-success">
+                    <span class="btn-icon">📄</span> Solicitar Análisis Completo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Detalles Ampliados -->
+    <div id="modal-detalles" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Detalles Ampliados del Análisis</h2>
+            <div id="modal-detalles-body"></div>
+        </div>
+    </div>
+
+    <!-- Modal para Comparación -->
+    <div id="modal-comparar" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Comparar con Otras Notas de Prensa</h2>
+            <div id="comparacion-list">
+                <p class="info-message">Guarde este análisis y agregue más para comparar.</p>
+            </div>
+            <div class="comparison-actions">
+                <button type="button" id="btn-guardar-actual" class="action-btn btn-small">Guardar Análisis Actual</button>
+                <button type="button" id="btn-limpiar-comparacion" class="action-btn btn-small btn-danger">Limpiar Comparación</button>
+            </div>
+            <div id="comparison-chart"></div>
         </div>
     </div>
 
