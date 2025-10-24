@@ -225,7 +225,8 @@ Haz clic en el botón **"Evaluar Repercusión"**. El sistema:
 ```
 evaluador-impacto-notas-prensa/
 │
-├── index.html                         # Página principal
+├── index.html                         # Página principal (HTML estructural)
+├── styles.css                         # Estilos y diseño visual
 ├── script.js                          # Lógica de la aplicación
 ├── workflow-evaluador-impacto.json    # Workflow N8N exportado
 ├── README.md                          # Documentación completa del proyecto
@@ -236,13 +237,19 @@ evaluador-impacto-notas-prensa/
     └── video-demo.mp4                 # Video explicativo 60-90s
 ```
 
+### Arquitectura de Archivos
+
+- **`index.html` (96 líneas):** Estructura HTML semántica, sin CSS inline
+- **`styles.css` (464 líneas):** Todos los estilos, animaciones y responsive design
+- **`script.js`:** Lógica de interacción, fetch API y manejo de datos
+
 ---
 
 ## 🛠️ Tecnologías Utilizadas
 
 ### Frontend
-- **HTML5:** Estructura semántica
-- **CSS3:** Estilos modernos con gradientes y animaciones
+- **HTML5:** Estructura semántica modular
+- **CSS3:** Estilos externos con gradientes, animaciones y responsive design
 - **JavaScript (Vanilla):** Lógica sin dependencias externas
 
 ### Backend
@@ -251,11 +258,13 @@ evaluador-impacto-notas-prensa/
 - **HTTP Request:** Consulta a endpoint externo
 
 ### Características Técnicas
+- ✅ Arquitectura modular (HTML, CSS y JS separados)
 - ✅ Diseño responsive (mobile-first)
 - ✅ LocalStorage para persistencia de datos
 - ✅ Fetch API para comunicación asíncrona
 - ✅ Manejo de errores robusto
 - ✅ Animaciones CSS3 (keyframes)
+- ✅ Separación de responsabilidades (estructura, presentación, comportamiento)
 
 ---
 
