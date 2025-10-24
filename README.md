@@ -230,10 +230,10 @@ evaluador-impacto-notas-prensa/
 ├── script.js                          # Lógica de la aplicación
 ├── workflow-evaluador-impacto.json    # Workflow N8N exportado
 ├── README.md                          # Documentación completa del proyecto
-├── CASOS_DE_PRUEBA.md                 # 5 casos de prueba documentados
-├── DOCUMENTACION_TECNICA.md           # Arquitectura y detalles técnicos
 │
-└── docs/                              # Recursos adicionales
+└── docs/                              # Documentación y recursos
+    ├── CASOS_DE_PRUEBA.md             # 5 casos de prueba documentados
+    ├── DOCUMENTACION_TECNICA.md       # Arquitectura y detalles técnicos
     └── video-demo.mp4                 # Video explicativo 60-90s
 ```
 
@@ -278,7 +278,7 @@ Se han documentado **5 casos de prueba exitosos** que validan todas las funciona
 4. ❌ **Comunicado Empresarial Bajo Impacto** - Todas las métricas en rojo
 5. ✅ **Anuncio Gubernamental Alto Impacto** - Excelente desempeño
 
-**Ver detalles completos:** [CASOS_DE_PRUEBA.md](CASOS_DE_PRUEBA.md)
+**Ver detalles completos:** [CASOS_DE_PRUEBA.md](docs/CASOS_DE_PRUEBA.md)
 
 ---
 
@@ -286,7 +286,7 @@ Se han documentado **5 casos de prueba exitosos** que validan todas las funciona
 
 Para información detallada sobre la arquitectura, flujo de datos, y decisiones técnicas:
 
-📖 **Ver:** [DOCUMENTACION_TECNICA.md](DOCUMENTACION_TECNICA.md)
+📖 **Ver:** [DOCUMENTACION_TECNICA.md](docs/DOCUMENTACION_TECNICA.md)
 
 ### Temas Cubiertos:
 - Arquitectura del sistema
@@ -319,6 +319,7 @@ start index.html
 
 ## 🔗 Enlaces Relevantes
 
+- **Video Demo**: [Ver demo del proyecto](docs/video-demo.mp4) (60-90s explicando funcionalidades)
 - **Endpoint de Análisis**: `https://victoriagaray.app.n8n.cloud/webhook/evaluador-impacto`
 - **Google Sheets API**: Endpoint externo utilizado para los datos
 
