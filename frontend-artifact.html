@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluador de Impacto - Claude Artifact</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            background: linear-gradient(135deg, #3d944c 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 750px;
+            width: 100%;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            text-align: center;
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 2.2em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #3d944c 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            text-align: center;
+            margin-bottom: 35px;
+            color: #718096;
+            font-size: 1.05em;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4a5568;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        input[type="text"], input[type="date"] {
+            display: block;
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            background-color: #f7fafc;
+        }
+
+        input[type="text"]:focus, input[type="date"]:focus {
+            outline: none;
+            border-color: #667eea;
+            background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            margin-top: 30px;
+            padding: 16px;
+            background: linear-gradient(135deg, #3d944c 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.15em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(102, 126, 234, 0.6);
+        }
+
+        #loading {
+            text-align: center;
+            color: #667eea;
+            font-size: 1.2em;
+            font-weight: 600;
+            padding: 30px;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        #results {
+            margin-top: 40px;
+            padding: 30px;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            background: linear-gradient(to bottom, #f7fafc, #fff);
+        }
+
+        #results h2 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding: 12px;
+            background-color: #f7fafc;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .metric-box {
+            margin: 12px 0;
+            padding: 18px 20px;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.05em;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: transform 0.2s ease;
+        }
+
+        .metric-box:hover {
+            transform: translateX(5px);
+        }
+
+        .verde {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        }
+        .amarillo {
+            background: linear-gradient(135deg, #ecc94b 0%, #d69e2e 100%);
+            color: #2d3748;
+        }
+        .rojo {
+            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+        }
+
+        .global-result {
+            font-size: 1.9em;
+            font-weight: 700;
+            margin-top: 30px;
+            text-align: center;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .action-btn {
+            padding: 14px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 800px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+            }
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Evaluador de Impacto de Notas de Prensa</h1>
+        <p class="subtitle">
+            🤖 Frontend desarrollado con Claude AI Artifacts<br>
+            Descubra el impacto real de su mensaje en los medios
+        </p>
+
+        <form id="impact-form">
+            <div class="form-group">
+                <label for="organizacion">Organización</label>
+                <input type="text" id="organizacion" placeholder="Ej: TechCorp" required>
+            </div>
+
+            <div class="form-group">
+                <label for="tema">Tema</label>
+                <input type="text" id="tema" placeholder="Ej: Lanzamiento Producto" required>
+            </div>
+
+            <div class="form-group">
+                <label for="fecha">Fecha de Publicación</label>
+                <input type="date" id="fecha" required>
+            </div>
+
+            <button type="submit">Evaluar Repercusión</button>
+        </form>
+
+        <div id="loading" style="display:none;">⏳ Analizando con IA... Esto puede tomar unos segundos.</div>
+
+        <div id="results" style="display:none;">
+            <h2>Resultados del Análisis</h2>
+
+            <div class="info-row">
+                <strong>Organización:</strong>
+                <span id="res-organizacion"></span>
+            </div>
+
+            <div class="info-row">
+                <strong>Tema:</strong>
+                <span id="res-tema"></span>
+            </div>
+
+            <h3>Métricas Detalladas</h3>
+            <div id="metrics-output"></div>
+
+            <div id="global-result" class="global-result"></div>
+
+            <div class="action-buttons">
+                <button type="button" id="btn-detalles" class="action-btn">
+                    📊 Ver Detalles
+                </button>
+                <button type="button" id="btn-comparar" class="action-btn">
+                    📈 Comparar
+                </button>
+                <button type="button" id="btn-analisis-completo" class="action-btn">
+                    📄 Exportar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Detalles -->
+    <div id="modal-detalles" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Detalles Ampliados del Análisis</h2>
+            <div id="modal-detalles-body"></div>
+        </div>
+    </div>
+
+    <script>
+        // ========================================
+        // CONFIGURACIÓN DEL WEBHOOK N8N
+        // ========================================
+        const WEBHOOK_URL = "https://victoriagaray.app.n8n.cloud/webhook/evaluador-impacto";
+
+        // ========================================
+        // MANEJO DEL FORMULARIO
+        // ========================================
+        document.getElementById('impact-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const organizacion = document.getElementById('organizacion').value;
+            const tema = document.getElementById('tema').value;
+            const fecha = document.getElementById('fecha').value;
+
+            const data = {
+                organizacion: organizacion,
+                tema: tema,
+                fecha: fecha
+            };
+
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+
+            fetch(WEBHOOK_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Error HTTP: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(analysisResult => {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('results').style.display = 'block';
+                document.getElementById('res-organizacion').textContent = organizacion;
+                document.getElementById('res-tema').textContent = tema;
+
+                const globalResultDiv = document.getElementById('global-result');
+                globalResultDiv.textContent = `Resultado Global: ${analysisResult.resultado_global}`;
+                globalResultDiv.className = analysisResult.resultado_global === 'FUNCIONÓ' ? 'global-result verde' : 'global-result rojo';
+
+                const metricsOutput = document.getElementById('metrics-output');
+                const metrics = {
+                    'Cobertura de Medios': analysisResult.cobertura_medios.toLocaleString(),
+                    'Alcance Estimado': analysisResult.alcance_estimado.toLocaleString(),
+                    'Duración en Días': analysisResult.duracion_dias,
+                    'Engagement Total': analysisResult.engagement_total.toLocaleString()
+                };
+
+                const analysisDetail = analysisResult.analisis;
+                metricsOutput.innerHTML = '';
+
+                for (const key in analysisDetail) {
+                    const detail = analysisDetail[key];
+                    let metricDisplayName = key.charAt(0).toUpperCase() + key.slice(1);
+
+                    if (key === 'cobertura') metricDisplayName = 'Cobertura de Medios';
+                    if (key === 'alcance') metricDisplayName = 'Alcance Estimado';
+                    if (key === 'duracion') metricDisplayName = 'Duración en Días';
+                    if (key === 'engagement') metricDisplayName = 'Engagement Total';
+
+                    let metricValue = metrics[metricDisplayName] || '';
+
+                    metricsOutput.innerHTML += `
+                        <div class="metric-box ${detail.color}">
+                            <strong>${metricDisplayName}:</strong> ${metricValue}
+                            (<small>Estado: ${detail.estado}</small>)
+                        </div>
+                    `;
+                }
+
+                window.currentAnalysis = {
+                    ...analysisResult,
+                    organizacion: organizacion,
+                    tema: tema,
+                    fecha: fecha
+                };
+
+            })
+            .catch(error => {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('results').style.display = 'block';
+                document.getElementById('results').innerHTML = `
+                    <h2 style="color:red;">❌ Error en el Análisis</h2>
+                    <p>Verifique que el workflow de N8N esté activo.</p>
+                    <p><strong>Detalle:</strong> ${error.message}</p>
+                `;
+            });
+        });
+
+        // ========================================
+        // BOTÓN DE DETALLES
+        // ========================================
+        document.getElementById('btn-detalles').addEventListener('click', function() {
+            if (!window.currentAnalysis) {
+                alert('No hay análisis disponible.');
+                return;
+            }
+            const modal = document.getElementById('modal-detalles');
+            const modalBody = document.getElementById('modal-detalles-body');
+            const analysis = window.currentAnalysis;
+
+            modalBody.innerHTML = `
+                <div style="background: #f7fafc; padding: 15px; margin: 10px 0; border-radius: 10px;">
+                    <h4>📊 Información General</h4>
+                    <p><strong>Organización:</strong> ${analysis.organizacion}</p>
+                    <p><strong>Tema:</strong> ${analysis.tema}</p>
+                    <p><strong>Resultado Global:</strong> ${analysis.resultado_global}</p>
+                </div>
+                <div style="background: #f7fafc; padding: 15px; margin: 10px 0; border-radius: 10px;">
+                    <h4>📰 Cobertura de Medios</h4>
+                    <p><strong>Cantidad:</strong> ${analysis.cobertura_medios} medios</p>
+                    <p><strong>Estado:</strong> ${analysis.analisis.cobertura.estado}</p>
+                </div>
+                <div style="background: #f7fafc; padding: 15px; margin: 10px 0; border-radius: 10px;">
+                    <h4>👥 Alcance Estimado</h4>
+                    <p><strong>Personas:</strong> ${analysis.alcance_estimado.toLocaleString()}</p>
+                    <p><strong>Estado:</strong> ${analysis.analisis.alcance.estado}</p>
+                </div>
+            `;
+
+            modal.style.display = 'block';
+        });
+
+        // ========================================
+        // BOTÓN DE ANÁLISIS COMPLETO
+        // ========================================
+        document.getElementById('btn-analisis-completo').addEventListener('click', function() {
+            if (!window.currentAnalysis) {
+                alert('No hay análisis disponible para exportar.');
+                return;
+            }
+
+            const analysis = window.currentAnalysis;
+            let reportContent = `ANÁLISIS COMPLETO DE IMPACTO - NOTA DE PRENSA\n`;
+            reportContent += `${'='.repeat(60)}\n\n`;
+            reportContent += `Organización: ${analysis.organizacion}\n`;
+            reportContent += `Tema: ${analysis.tema}\n`;
+            reportContent += `Resultado Global: ${analysis.resultado_global}\n\n`;
+            reportContent += `Cobertura: ${analysis.cobertura_medios} medios\n`;
+            reportContent += `Alcance: ${analysis.alcance_estimado.toLocaleString()} personas\n`;
+            reportContent += `Duración: ${analysis.duracion_dias} días\n`;
+            reportContent += `Engagement: ${analysis.engagement_total.toLocaleString()}\n`;
+
+            const blob = new Blob([reportContent], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Analisis_${analysis.organizacion}_${new Date().getTime()}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+
+            alert('📄 Análisis descargado exitosamente.');
+        });
+
+        // ========================================
+        // CERRAR MODALES
+        // ========================================
+        document.querySelector('.close').onclick = function() {
+            document.getElementById('modal-detalles').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('modal-detalles');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

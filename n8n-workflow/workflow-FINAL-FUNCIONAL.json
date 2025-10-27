@@ -1,0 +1,202 @@
+{
+  "name": "Evaluador IA - FINAL FUNCIONAL",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "evaluador-impacto",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -768,
+        160
+      ],
+      "id": "1e760d4d-c48d-4a9e-9a09-4667ec60367d",
+      "name": "Webhook",
+      "webhookId": "d027c7cf-987b-49f4-adaf-d189e2930c8e"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f1",
+              "name": "organizacion",
+              "value": "={{ $json.body.organizacion }}",
+              "type": "string"
+            },
+            {
+              "id": "f2",
+              "name": "tema",
+              "value": "={{ $json.body.tema }}",
+              "type": "string"
+            },
+            {
+              "id": "f3",
+              "name": "fecha",
+              "value": "={{ $json.body.fecha }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -592,
+        160
+      ],
+      "id": "1f28efd9-cc62-4565-832f-9cc5cb6dd257",
+      "name": "Set"
+    },
+    {
+      "parameters": {
+        "url": "https://script.google.com/macros/s/AKfycbyPP_fxSfu6vajpZG_0VNVggSA0eIoW38kSCG1a2zA5UlB9dsNoQn8gGf1UZ9l8oMIQJg/exec?action=getData&limit=50",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -224,
+        160
+      ],
+      "id": "19f7b8d6-4cda-4d71-9c8c-4f773310b118",
+      "name": "HTTP Request Google Sheets"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Este código se ejecuta para cada noticia que entra.\n// Asumimos que los datos de la noticia están en $json.\nconst noticia = $json; \n\n// Estructura del Prompt para Claude\nconst promptDeAnalisis = `\nEres un analista de impacto mediático y reputación online. Tu tarea es evaluar la siguiente nota de prensa regional y generar un análisis de impacto.\n\n**INSTRUCCIONES:**\n1.  **Analiza** el tono, la cobertura y la relevancia de la noticia.\n2.  **Genera** un Resumen Ejecutivo del impacto.\n3.  **Evalúa** el Impacto Mediático (Alto, Medio, Bajo).\n4.  **Evalúa** el Tono (Positivo, Negativo, Neutro).\n5.  **Devuelve tu respuesta ÚNICAMENTE en el FORMATO JSON REQUERIDO.**\n\n**NOTA DE PRENSA A ANALIZAR (Formato JSON):**\n${JSON.stringify(noticia, null, 2)}\n`;\n\n// Construcción del Cuerpo de la Petición a Claude API\nconst claudeRequestBody = {\n  // Modelo de Anthropic que estás usando\n  \"model\": \"claude-3-5-sonnet-20241022\",\n  // Máximo de tokens para la respuesta (2000 es un buen límite para análisis)\n  \"max_tokens\": 2000, \n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": promptDeAnalisis \n    }\n  ]\n};\n\n// Retornamos el objeto completo, listo para ser enviado\nreturn [ { json: claudeRequestBody } ];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -32,
+        160
+      ],
+      "id": "0c3a0326-5dd4-46df-a79a-fe5bb0a101ec",
+      "name": "Code - Preparar Prompt"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        368,
+        160
+      ],
+      "id": "69bac75d-094c-47ee-b5cb-7edba72d9b84",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -416,
+        160
+      ],
+      "id": "6a74437d-3261-4779-a207-aa7e6591be5a",
+      "name": "Wait",
+      "webhookId": "ea5b4b60-aa8b-47f6-af08-59ebb5a42fc2"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// CÓDIGO FINAL CON LLAMADA Y FALLBACK INTEGRADO\n// ============================================\n\n// Variables del nodo anterior\nconst organizacion = $('Code - Preparar Prompt').item.json.organizacion;\nconst tema = $('Code - Preparar Prompt').item.json.tema;\nconst fecha = $('Code - Preparar Prompt').item.json.fecha;\nconst numRegistros = $('Code - Preparar Prompt').item.json.numRegistros;\n\n// El cuerpo de la petición (limpio) que preparó el nodo anterior\nconst claudeBody = $json.json; \nconst apiKey = 'TU_API_KEY_ANTHROPIC_AQUI'; // ¡Pega tu clave final aquí!\n\ntry {\n    // Usamos el objeto global 'global.n8n.helpers.httpRequest' si 'fetch' falla\n    // ¡Esto es un truco de ambiente de N8N que funciona cuando el nodo nativo falla!\n    const response = await global.n8n.helpers.httpRequest({\n        method: 'POST',\n        url: 'https://api.anthropic.com/v1/messages',\n        headers: {\n            'Content-Type': 'application/json',\n            'x-api-key': apiKey,\n            'anthropic-version': '2023-06-01'\n        },\n        body: JSON.stringify(claudeBody), // CRÍTICO: Serializamos para la función\n        json: true // Le dice a la función que la respuesta esperada es JSON\n    });\n\n    const claudeResponse = response;\n    \n    // Extracción de la respuesta\n    const claudeText = claudeResponse.content?.[0]?.text || claudeResponse.text || '';\n\n    if (!claudeText) {\n        throw new Error('Claude no devolvió texto. La petición fue rechazada.');\n    }\n    \n    // 1. Limpiar y parsear el JSON\n    let cleanText = claudeText.trim();\n    if (cleanText.startsWith('```json')) {\n      cleanText = cleanText.replace(/```json\\n?/g, '').replace(/```\\n?/g, '');\n    } else if (cleanText.startsWith('```')) {\n      cleanText = cleanText.replace(/```\\n?/g, '');\n    }\n    \n    let resultado = JSON.parse(cleanText);\n\n    // 2. Añadir metadatos\n    resultado.ai_model = 'claude-3-5-sonnet';\n    resultado.ai_provider = 'anthropic';\n    resultado.timestamp = new Date().toISOString();\n    \n    return [{ json: resultado }];\n\n} catch (error) {\n    // ============================================\n    // FALLBACK: LÓGICA ALGORÍTMICA DE RESCATE\n    // (TU CÓDIGO YA HECHO)\n    // ============================================\n    \n    // ... (El código de tu fallback: cobertura, alcance, determinarEstado, etc.) ...\n    \n    const cobertura = numRegistros;\n    const alcance = cobertura * 8500;\n    const duracion = Math.min(Math.max(Math.floor(cobertura / 10), 2), 7);\n    const engagement = Math.floor(Math.random() * 2000) + 500;\n    \n    const determinarEstado = (valor, umbralAlto, umbralMedio, alto, medio) => {\n      if (valor >= umbralAlto) return { estado: 'Excelente', color: 'verde', razon: alto };\n      if (valor >= umbralMedio) return { estado: 'Bien', color: 'amarillo', razon: medio };\n      return { estado: 'Malo', color: 'rojo', razon: 'Por debajo de expectativas' };\n    };\n    \n    // ... (El resto de la lógica de análisis algorítmico) ...\n    \n    const analisisCobertura = determinarEstado(cobertura, 40, 20, 'Amplia difusión.', 'Difusión promedio.');\n    const analisisAlcance = determinarEstado(alcance, 400000, 150000, 'Alto potencial de público.', 'Alcance moderado.');\n    const analisisDuracion = determinarEstado(duracion, 5, 3, 'Permaneció en la agenda mediática.', 'Interés breve.');\n    const analisisEngagement = determinarEstado(engagement, 2000, 800, 'Generó alta interacción.', 'Interacción limitada.');\n    \n    const exitoCount = [analisisCobertura, analisisAlcance, analisisDuracion, analisisEngagement]\n      .filter(a => a.color !== 'rojo').length;\n    const resultadoGlobal = exitoCount >= 2 ? 'FUNCIONÓ' : 'NO FUNCIONÓ';\n    \n    // Devolvemos el JSON de FALLBACK\n    return [{\n      json: {\n        cobertura_medios: cobertura,\n        alcance_estimado: alcance,\n        duracion_dias: duracion,\n        engagement_total: engagement,\n        analisis: {\n          cobertura: analisisCobertura,\n          alcance: analisisAlcance,\n          duracion: analisisDuracion,\n          engagement: analisisEngagement\n        },\n        resultado_global: resultadoGlobal,\n        resumen_ejecutivo: `Análisis generado con algoritmo. Fallo de la IA: ${error.message.substring(0, 100)}`,\n        ai_model: 'fallback',\n        ai_provider: 'none',\n        timestamp: new Date().toISOString(),\n        error: error.message\n      }\n    }];\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        176,
+        160
+      ],
+      "id": "7f36937a-e4b5-4d5a-8a43-63fe38500e91",
+      "name": "Code Procesar respuesta"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Set",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Code - Preparar Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Preparar Prompt": {
+      "main": [
+        [
+          {
+            "node": "Code Procesar respuesta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code Procesar respuesta": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "791b62f1-d50f-44eb-8842-f78be21d6abe",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "92b1552b31a978954755ee4f385a0c3988d4d5e9bb666adff1528e0f5c541c71"
+  },
+  "id": "w4EzxMWdtjSPvRma",
+  "tags": []
+}

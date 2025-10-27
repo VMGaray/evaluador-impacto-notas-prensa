@@ -5,6 +5,8 @@
 ![Estado](https://img.shields.io/badge/estado-funcional-brightgreen)
 ![Tecnología](https://img.shields.io/badge/tech-HTML%20%7C%20CSS%20%7C%20JavaScript-blue)
 ![N8N](https://img.shields.io/badge/backend-N8N%20Workflow-orange)
+![Claude](https://img.shields.io/badge/frontend-Claude%20AI%20Artifacts-blue)
+![IA](https://img.shields.io/badge/an%C3%A1lisis-Agente%20IA-purple)
 
 ---
 
@@ -25,7 +27,17 @@
 
 ## 🎯 Descripción
 
-Esta aplicación permite a organizaciones, empresas y entidades gubernamentales **evaluar el impacto real** de sus comunicados de prensa en los medios de comunicación. A través de un workflow automatizado en N8N que consulta datos de un endpoint externo, el sistema analiza métricas clave y proporciona insights accionables.
+Esta aplicación permite a organizaciones, empresas y entidades gubernamentales **evaluar el impacto real** de sus comunicados de prensa en los medios de comunicación. A través de un workflow automatizado en N8N que integra un **agente de IA** (OpenAI/Claude) que consulta datos de un endpoint externo, el sistema analiza métricas clave y proporciona insights accionables inteligentes.
+
+### 🤖 Desarrollo del Frontend con Claude AI
+
+El frontend fue desarrollado utilizando **Claude AI Artifacts** (claude.ai), lo que permitió:
+- ✅ Desarrollo rápido con vista previa en tiempo real
+- ✅ Código de alta calidad generado por IA
+- ✅ Diseño responsive y moderno
+- ✅ Iteración rápida mediante prompts
+
+📄 **Ver documentación completa:** [`INSTRUCCIONES_CLAUDE_ARTIFACTS.md`](INSTRUCCIONES_CLAUDE_ARTIFACTS.md)
 
 ### ¿Qué problema resuelve?
 
@@ -43,10 +55,12 @@ Esta aplicación permite a organizaciones, empresas y entidades gubernamentales 
 - Validación de campos requeridos
 - Diseño moderno y responsive
 
-✅ **Análisis Automático**
+✅ **Análisis con IA**
+- 🤖 **Agente de IA** (OpenAI GPT-4 / Claude 3.5) para análisis inteligente
 - Integración con workflow N8N
 - Consulta a endpoint externo con 50 registros
-- Procesamiento de datos en tiempo real
+- Procesamiento contextual de datos en tiempo real
+- Recomendaciones personalizadas basadas en IA
 
 ✅ **Métricas de Impacto**
 - 📰 **Cobertura mediática:** Cantidad de medios que publicaron
@@ -132,44 +146,73 @@ Luego abre `http://localhost:8000` en tu navegador.
 
 ## ⚙️ Configuración del Workflow N8N
 
-### Paso 1: Importar el Workflow
+✅ **El workflow incluye análisis con Claude AI (Anthropic) - Requiere configuración manual**
 
-1. Accede a tu instancia de N8N
-2. Ve a **Workflows** → **Import from File**
-3. Selecciona el archivo `workflow-evaluador-impacto.json` incluido en este repositorio
-4. Haz clic en **Import**
+### Arquitectura del Workflow (7 nodos):
 
-### Paso 2: Configurar el Webhook
+```
+Webhook → Set → HTTP Request (Google Sheets) → Code (Preparar Prompt) →
+HTTP Request (Claude API) → Code (Procesar Respuesta) → Respond to Webhook
+```
+
+### Paso 1: Crear el Workflow en N8N
+
+Debido a limitaciones técnicas identificadas (no se puede hacer HTTP requests desde nodos Code), el workflow requiere configuración manual:
+
+**Nodos necesarios:**
+
+1. **Webhook** - Recibe datos del frontend (organizacion, tema, fecha)
+2. **Set** - Extrae las variables del body
+3. **HTTP Request Google Sheets** - Consulta endpoint externo (50 registros)
+4. **Code "Preparar Prompt"** - Construye el prompt para Claude
+5. **HTTP Request Claude API** - 🤖 Llama a Claude 3.5 Sonnet
+6. **Code "Procesar Respuesta"** - Parsea respuesta + fallback algorítmico
+7. **Respond to Webhook** - Devuelve análisis al frontend
+
+📄 **Ver configuración detallada:** [`RESUMEN_INTEGRACION_IA.md`](RESUMEN_INTEGRACION_IA.md)
+
+### Paso 2: Configurar el Nodo HTTP Request Claude API
+
+**⚠️ CRÍTICO:** Este es el paso más importante.
+
+| Campo | Valor |
+|-------|-------|
+| **Method** | POST |
+| **URL** | `https://api.anthropic.com/v1/messages` |
+| **Authentication** | None |
+| **Send Headers** | ON |
+| **Send Body** | ON |
+| **Specify Body** | Using JSON |
+| **JSON** | `={{ $json }}` (modo Expression) |
+
+**Headers (agregar 3):**
+1. `x-api-key`: `TU_API_KEY_DE_ANTHROPIC_AQUI` (obtén tu key en https://console.anthropic.com)
+2. `anthropic-version`: `2023-06-01`
+3. `content-type`: `application/json`
+
+**⚠️ Errores comunes a evitar:**
+- ❌ NO uses `JSON.stringify()` en el campo JSON
+- ❌ NO uses `Authentication: HTTP Header Auth`
+- ✅ El campo JSON debe estar en modo **Expression**, no Fixed
+- ✅ Solo escribe: `={{ $json }}`
+
+### Paso 3: Verificar el Webhook URL
 
 1. Abre el nodo **Webhook** en el workflow
 2. Copia la URL del webhook generada
 3. Abre el archivo `script.js` en tu editor
-4. Verifica que la línea 8 tenga tu URL del webhook:
+4. Verifica que la línea 20 tenga la URL correcta:
 
 ```javascript
 const WEBHOOK_URL = "https://victoriagaray.app.n8n.cloud/webhook/evaluador-impacto";
 ```
 
-**Nota:** Si importas el workflow en tu propia instancia de N8N, la URL será diferente. En ese caso, reemplázala con tu URL.
-
-### Paso 3: Verificar Configuración
-
-El workflow tiene la siguiente estructura:
-
-```
-Webhook → Set → HTTP Request → Code (JavaScript) → Respond to Webhook
-```
-
-- **Webhook:** Recibe datos del frontend (organizacion, tema, fecha)
-- **Set:** Prepara los datos para procesamiento
-- **HTTP Request:** Consulta el endpoint externo (50 registros)
-- **Code:** Calcula métricas y determina estados
-- **Respond to Webhook:** Devuelve resultados al frontend
+**Nota:** Si la URL es diferente, actualiza el `script.js` con tu URL.
 
 ### Paso 4: Activar el Workflow
 
 1. Haz clic en el botón **"Active"** en la esquina superior derecha
-2. El workflow debe mostrar un ícono verde ✅
+2. El workflow debe mostrar un toggle verde ✅
 3. ¡Listo para recibir solicitudes!
 
 ---
@@ -225,23 +268,41 @@ Haz clic en el botón **"Evaluar Repercusión"**. El sistema:
 ```
 evaluador-impacto-notas-prensa/
 │
-├── index.html                         # Página principal (HTML estructural)
-├── styles.css                         # Estilos y diseño visual
-├── script.js                          # Lógica de la aplicación
-├── workflow-evaluador-impacto.json    # Workflow N8N exportado
-├── README.md                          # Documentación completa del proyecto
+├── index.html                            # Página principal (HTML estructural)
+├── styles.css                            # Estilos y diseño visual
+├── script.js                             # Lógica de la aplicación
+├── frontend-artifact.html                # 🤖 Versión consolidada para Claude Artifacts
+├── INSTRUCCIONES_CLAUDE_ARTIFACTS.md     # 🤖 Guía de uso de Claude AI
+├── README.md                             # Documentación completa del proyecto
 │
-└── docs/                              # Documentación y recursos
-    ├── CASOS_DE_PRUEBA.md             # 5 casos de prueba documentados
-    ├── DOCUMENTACION_TECNICA.md       # Arquitectura y detalles técnicos
-    └── video-demo.mp4                 # Video explicativo 60-90s
+├── n8n-workflow/
+│   ├── workflow.json                     # 🤖 Workflow N8N con Claude AI integrado (funcional)
+│   └── PROMPT_CLAUDE_SIMPLE.txt          # Prompt de referencia para el agente IA
+│
+└── docs/                                 # Documentación y recursos
+    ├── CASOS_DE_PRUEBA.md                # 5 casos de prueba documentados
+    ├── DOCUMENTACION_TECNICA.md          # Arquitectura y detalles técnicos
+    ├── CLAUDE_ARTIFACTS_DESARROLLO.md    # 🤖 Proceso de desarrollo con Claude
+    ├── INTEGRACION_IA_WORKFLOW.md        # 🤖 Integración de IA en N8N
+    └── video-demo.mp4                    # Video explicativo 60-90s
 ```
 
 ### Arquitectura de Archivos
 
+#### Frontend
 - **`index.html` (96 líneas):** Estructura HTML semántica, sin CSS inline
 - **`styles.css` (464 líneas):** Todos los estilos, animaciones y responsive design
-- **`script.js`:** Lógica de interacción, fetch API y manejo de datos
+- **`script.js` (359 líneas):** Lógica de interacción, fetch API y manejo de datos
+- **`frontend-artifact.html`:** 🤖 Versión todo-en-uno para Claude Artifacts
+
+#### Backend (N8N)
+- **`n8n-workflow/workflow.json`:** Workflow funcional con Claude 3.5 Sonnet integrado
+- **`n8n-workflow/PROMPT_CLAUDE_SIMPLE.txt`:** Prompt de referencia para el agente IA
+
+#### Documentación
+- **`INSTRUCCIONES_CLAUDE_ARTIFACTS.md`:** Cómo reproducir el artifact en claude.ai
+- **`docs/CLAUDE_ARTIFACTS_DESARROLLO.md`:** Proceso completo de desarrollo con IA
+- **`docs/INTEGRACION_IA_WORKFLOW.md`:** Guía de integración de IA en N8N
 
 ---
 
@@ -251,14 +312,18 @@ evaluador-impacto-notas-prensa/
 - **HTML5:** Estructura semántica modular
 - **CSS3:** Estilos externos con gradientes, animaciones y responsive design
 - **JavaScript (Vanilla):** Lógica sin dependencias externas
+- **🤖 Claude AI Artifacts:** Herramienta de desarrollo del frontend
 
 ### Backend
 - **N8N:** Orquestación de workflow
-- **JavaScript (Node.js):** Procesamiento en nodo Code
-- **HTTP Request:** Consulta a endpoint externo
+- **🤖 Claude 3.5 Sonnet (Anthropic):** Agente de IA para análisis inteligente
+- **JavaScript (Node.js):** Procesamiento en nodos Code para preparar prompts y procesar respuestas
+- **HTTP Request:** Consulta a endpoint externo (Google Sheets API) y API de Claude
 
 ### Características Técnicas
 - ✅ Arquitectura modular (HTML, CSS y JS separados)
+- ✅ 🤖 Frontend generado con Claude AI Artifacts
+- ✅ 🤖 Análisis inteligente con Claude 3.5 Sonnet integrado
 - ✅ Diseño responsive (mobile-first)
 - ✅ LocalStorage para persistencia de datos
 - ✅ Fetch API para comunicación asíncrona
@@ -284,13 +349,21 @@ Se han documentado **5 casos de prueba exitosos** que validan todas las funciona
 
 ## 📚 Documentación Técnica
 
-Para información detallada sobre la arquitectura, flujo de datos, y decisiones técnicas:
+### Documentos Principales
 
-📖 **Ver:** [DOCUMENTACION_TECNICA.md](docs/DOCUMENTACION_TECNICA.md)
+| Documento | Descripción |
+|-----------|-------------|
+| **[DOCUMENTACION_TECNICA.md](docs/DOCUMENTACION_TECNICA.md)** | Arquitectura del sistema, flujo de datos, decisiones técnicas |
+| **🤖 [CLAUDE_ARTIFACTS_DESARROLLO.md](docs/CLAUDE_ARTIFACTS_DESARROLLO.md)** | Proceso de desarrollo del frontend con Claude AI |
+| **🤖 [INTEGRACION_IA_WORKFLOW.md](docs/INTEGRACION_IA_WORKFLOW.md)** | Guía para integrar OpenAI/Claude en N8N workflow |
+| **[INSTRUCCIONES_CLAUDE_ARTIFACTS.md](INSTRUCCIONES_CLAUDE_ARTIFACTS.md)** | Cómo reproducir el artifact en claude.ai |
+| **[CASOS_DE_PRUEBA.md](docs/CASOS_DE_PRUEBA.md)** | 5 casos de prueba documentados |
 
 ### Temas Cubiertos:
 - Arquitectura del sistema
 - Flujo de datos completo
+- 🤖 Desarrollo con Claude AI Artifacts
+- 🤖 Integración de agentes de IA
 - Cálculo de métricas y umbrales
 - Decisiones de diseño
 - Seguridad y mejores prácticas
@@ -327,11 +400,26 @@ start index.html
 
 ## 📝 Notas Técnicas
 
-- El sistema utiliza datos reales del endpoint externo de Google Sheets
-- El cálculo de métricas se basa en los 50 registros obtenidos
-- La duración en días es simulada (2-7 días aleatorios)
-- El engagement se calcula mediante simulación basada en datos
+### ✅ Implementado
+- El sistema utiliza datos reales del endpoint externo de Google Sheets (50 registros)
+- Frontend desarrollado con **Claude AI Artifacts** (claude.ai)
+- **🤖 Claude 3.5 Sonnet** integrado en el workflow para análisis inteligente
+- Diseño responsive y compacto (800px max-width, optimizado para pantallas pequeñas)
+- Estilos CSS modulares con paleta de colores consistente
 - **IMPORTANTE**: El workflow de N8N debe estar **ACTIVO** para que funcione
+
+### ⚠️ Configuración Requerida
+- **Workflow requiere configuración manual:** Ver [`RESUMEN_INTEGRACION_IA.md`](RESUMEN_INTEGRACION_IA.md)
+- **7 nodos necesarios:** No se puede hacer HTTP requests desde nodos Code
+- **Nodo HTTP Request Claude API es crítico:** Debe configurarse sin Authentication y con headers manuales
+- El workflow incluye sistema de **fallback algorítmico** si Claude API falla
+- **Claude AI genera:** Análisis contextual, recomendaciones personalizadas y métricas inteligentes
+
+### 🔧 Problemas Conocidos y Soluciones
+- **Error "Cannot read properties of undefined (reading 'helpers')"**: No uses `$http.request()` o `global.n8n.helpers` en Code nodes
+- **Error "Bad request"**: No uses `JSON.stringify()` en el campo JSON del nodo HTTP Request
+- **Botones desalineados**: Contenedor ampliado a 800px, botones con font-size 0.9em
+- **Ver documentación completa de troubleshooting:** [`RESUMEN_INTEGRACION_IA.md`](RESUMEN_INTEGRACION_IA.md)
 
 ---
 

@@ -37,6 +37,11 @@
         <div id="results" style="display:none;">
             <h2>Resultados del Análisis</h2>
 
+            <div id="ai-badge" class="ai-badge" style="display:none;">
+                <span class="ai-icon">🤖</span>
+                <span class="ai-text">Análisis generado con <strong>Claude AI (Anthropic)</strong></span>
+            </div>
+
             <div class="info-row">
                 <strong>Organización:</strong>
                 <span id="res-organizacion"></span>
@@ -46,7 +51,12 @@
                 <strong>Tema:</strong>
                 <span id="res-tema"></span>
             </div>
-
+            
+            <div class="ai-summary-box">
+                <h3>Resumen Ejecutivo (Análisis de Claude)</h3>
+                <p id="res-resumen-ejecutivo" class="ai-summary-text"></p>
+            </div>
+                
             <h3>Métricas Detalladas</h3>
             <div id="metrics-output"></div>
 
@@ -66,7 +76,6 @@
         </div>
     </div>
 
-    <!-- Modal para Detalles Ampliados -->
     <div id="modal-detalles" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
@@ -75,7 +84,6 @@
         </div>
     </div>
 
-    <!-- Modal para Comparación -->
     <div id="modal-comparar" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>

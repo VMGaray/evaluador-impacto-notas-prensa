@@ -15,11 +15,13 @@ body {
 }
 
 .container {
-    max-width: 750px;
+    max-width: 800px;
     width: 100%;
-    margin: 20px auto;
+    /* 1. COMPACTACIÓN: Reducimos margen */
+    margin: 10px auto; 
     background-color: #fff;
-    padding: 40px;
+    /* 1. COMPACTACIÓN: Reducimos padding interno */
+    padding: 20px 30px; 
     border-radius: 20px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.3);
     animation: fadeInUp 0.6s ease-out;
@@ -39,8 +41,8 @@ body {
 h1 {
     text-align: center;
     color: #2d3748;
-    margin-bottom: 15px;
-    font-size: 2.2em;
+    margin-bottom: 10px;
+    font-size: 1.8em;
     font-weight: 700;
     background: linear-gradient(135deg, #3d944c 0%, #764ba2 100%);
     -webkit-background-clip: text;
@@ -50,31 +52,32 @@ h1 {
 
 .subtitle {
     text-align: center;
-    margin-bottom: 35px;
+    margin-bottom: 20px;
     color: #718096;
-    font-size: 1.05em;
-    line-height: 1.6;
+    font-size: 0.95em;
+    line-height: 1.5;
 }
 
+/* 1. COMPACTACIÓN: Ajustes del Formulario */
 .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 10px; /* Espacio reducido entre campos */
 }
 
 label {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 2px; /* Espacio reducido debajo del label */
     color: #4a5568;
     font-weight: 600;
-    font-size: 0.95em;
+    font-size: 0.9em;
 }
 
 input[type="text"], input[type="date"] {
     display: block;
     width: 100%;
-    padding: 14px 16px;
+    padding: 10px 14px; /* Padding interno reducido */
     border: 2px solid #e2e8f0;
-    border-radius: 10px;
-    font-size: 1em;
+    border-radius: 8px; 
+    font-size: 0.95em;
     transition: all 0.3s ease;
     background-color: #f7fafc;
 }
@@ -87,28 +90,28 @@ input[type="text"]:focus, input[type="date"]:focus {
     transform: translateY(-2px);
 }
 
-button {
+form button[type="submit"] {
     display: block;
     width: 100%;
-    margin-top: 30px;
-    padding: 16px;
+    margin-top: 15px; /* Margen reducido sobre el botón */
+    padding: 12px; /* Padding reducido */
     background: linear-gradient(135deg, #3d944c 0%, #764ba2 100%);
     color: white;
     border: none;
-    border-radius: 10px;
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 1.15em;
+    font-size: 1.0em;
     font-weight: 600;
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
 }
 
-button:hover {
+form button[type="submit"]:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 25px rgba(102, 126, 234, 0.6);
 }
 
-button:active {
+form button[type="submit"]:active {
     transform: translateY(0);
 }
 
@@ -233,30 +236,35 @@ button:active {
     }
 }
 
-/* Action Buttons */
+/* 2. ALINEACIÓN DE BOTONES (CRÍTICO) */
 .action-buttons {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-    margin-top: 30px;
+    gap: 10px; /* Espacio reducido entre botones */
+    margin-top: 25px; /* Margen superior reducido */
+    
+    /* SOLUCIÓN AL PROBLEMA DE DESALINEACIÓN */
+    align-items: stretch; 
 }
 
 .action-btn {
-    padding: 14px 20px;
+    padding: 14px 10px; /* Padding ajustado para dar más espacio horizontal */
     border: none;
-    border-radius: 10px;
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 1em;
+    font-size: 0.9em; /* Fuente ligeramente más pequeña para evitar envoltura */
     font-weight: 600;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 5px; /* Espacio entre icono y texto reducido */
+    text-align: center;
+    line-height: 1.2; /* Alineación del texto más ajustada */
 }
 
 .btn-icon {
-    font-size: 1.2em;
+    font-size: 1.1em;
 }
 
 .btn-primary {
@@ -301,7 +309,7 @@ button:active {
     background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
 }
 
-/* Modal Styles */
+/* Modal Styles - Sin cambios funcionales */
 .modal {
     display: none;
     position: fixed;
@@ -441,6 +449,76 @@ button:active {
     font-weight: 600;
 }
 
+/* AI Badge */
+.ai-badge {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    animation: slideIn 0.5s ease-out;
+}
+
+.ai-icon {
+    font-size: 1.5em;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.ai-text {
+    font-size: 0.95em;
+}
+
+.ai-text strong {
+    font-weight: 700;
+    text-decoration: underline;
+}
+
+/* AI Summary Box */
+.ai-summary-box {
+    background: linear-gradient(to bottom, #f7fafc, #fff);
+    border: 2px solid #e2e8f0;
+    border-left: 4px solid #667eea;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 25px 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    animation: slideIn 0.5s ease-out;
+}
+
+.ai-summary-box h3 {
+    color: #2d3748;
+    margin-bottom: 12px;
+    font-size: 1.3em;
+    font-weight: 600;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.ai-summary-text {
+    color: #4a5568;
+    line-height: 1.7;
+    font-size: 1.05em;
+    padding: 12px;
+    background-color: #f7fafc;
+    border-radius: 8px;
+    border-left: 3px solid #3d944c;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
 @media (max-width: 768px) {
     .container {
         padding: 25px;
@@ -459,5 +537,10 @@ button:active {
         width: 95%;
         margin: 10% auto;
         padding: 20px;
+    }
+    .ai-badge {
+        flex-direction: column;
+        text-align: center;
+        gap: 5px;
     }
 }
